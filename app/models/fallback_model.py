@@ -1,4 +1,7 @@
-import tensorflow as tf
+try:
+    import tensorflow as tf
+except ImportError:
+    tf = None
 import numpy as np
 from PIL import Image
 from app.config import FALLBACK_MODEL_PATH
@@ -6,17 +9,28 @@ from app.config import FALLBACK_MODEL_PATH
 class FallbackModel:
     def __init__(self, model_path: str = FALLBACK_MODEL_PATH):
         self.model_path = model_path
+        self.model = None
+        
+        if tf is None:
+            print("TensorFlow not installed. Fallback model disabled.")
+            return
+
         try:
             self.model = tf.keras.models.load_model(model_path, compile=False)
         except Exception as e:
             print(f"Error loading fallback model from {model_path}: {e}")
-            # In case the file is missing or invalid, we might want to fail or use a dummy
-            # For now, we'll let it raise so we know setup is wrong, OR we catch it
-            # But user wants fallback logic, so if this fails, we are in trouble.
-            # I'll raise for now to be visible.
+            # Raise so the service knows it failed, but on Vercel we might just want to skip
             raise e
 
     def predict(self, image: Image.Image) -> dict:
+        if self.model is None:
+            return {
+                "prob_ai": None,
+                "prob_real": None,
+                "confidence": 0.0,
+                "note": "Fallback model disabled (TensorFlow missing)"
+            }
+
         # Preprocessing
         # Assuming model expects (224, 224, 3) and values [0, 1]
         target_size = (224, 224) 

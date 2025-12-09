@@ -1,10 +1,14 @@
 import sys
 import os
-import torch
+try:
+    import torch
+    from torchvision.transforms import Compose, Resize, CenterCrop, InterpolationMode
+except ImportError:
+    torch = None
+
 from PIL import Image
 import yaml
 import numpy as np
-from torchvision.transforms import Compose, Resize, CenterCrop, InterpolationMode
 
 # Add vendor directory to sys.path
 # sys.path modification moved to __init__ to ensure correct timing and scope
@@ -16,6 +20,11 @@ class PrimaryModel:
         self.device = device
         self.weights_dir = weights_dir
         self.model_name = model_name
+        self.model = None
+
+        if torch is None:
+            print("PyTorch not installed. Primary model disabled.")
+            return
         
         # Setup path to vendored code
         vendor_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../vendor/clipbased"))
@@ -62,6 +71,14 @@ class PrimaryModel:
         return Compose(transform)
 
     def predict(self, image: Image.Image) -> dict:
+        if self.model is None:
+            return {
+                "prob_ai": None,
+                "prob_real": None,
+                "confidence": 0.0,
+                "note": "Primary model disabled (PyTorch missing)"
+            }
+
         try:
             img_tensor = self.transform(image).unsqueeze(0).to(self.device)
             

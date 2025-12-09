@@ -5,7 +5,7 @@ torch
 torchvision
 ftfy
 regex
-tensorflow
+tensorflow<2.16
 Pillow
 pandas
 pyyaml

@@ -162,11 +162,38 @@ document.addEventListener('DOMContentLoaded', () => {
             resultsPanel.style.display = 'block';
 
             const decision = data.final_decision || {};
-            const isFake = decision.label === 'ai_generated';
+            const label = decision.label;
+
+            // Debug: Check for system failure
+            if (label === 'unknown') {
+                verdict.textContent = 'SYSTEM ERROR';
+                verdict.className = 'verdict fake'; // Red color for error
+                verdict.style.color = 'var(--text-muted)';
+                verdict.style.fontSize = '1.5rem';
+
+                document.getElementById('mainConfidence').textContent = '--';
+
+                // Show errors in explanation
+                const explanationBox = document.getElementById('explanationBox');
+                const primaryError = data.primary?.error_message || data.primary?.note || 'Unknown error';
+                const fallbackError = data.fallback?.error_message || data.fallback?.note || 'Unknown error';
+
+                explanationBox.innerHTML = `
+                    <strong style="color: var(--danger)">Detection Failed:</strong><br>
+                    Both models failed to process the image.<br><br>
+                    <strong>Primary:</strong> ${primaryError}<br>
+                    <strong>Fallback:</strong> ${fallbackError}<br><br>
+                    <em>Ensure weights are uploaded and libraries are installed.</em>
+                `;
+                return; // Stop processing
+            }
+
+            const isFake = label === 'ai_generated';
 
             // Verdict
             verdict.textContent = isFake ? 'FAKE' : 'REAL';
             verdict.className = isFake ? 'verdict fake' : 'verdict real';
+            verdict.style.fontSize = '';
 
             const pAi = decision.prob_ai * 100;
             const pReal = decision.prob_real ? decision.prob_real * 100 : (100 - pAi);
