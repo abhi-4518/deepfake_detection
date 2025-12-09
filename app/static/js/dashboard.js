@@ -131,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         canvas.toBlob(blob => {
             const file = new File([blob], "camera_capture.png", { type: "image/png" });
+            uploadMethod = 'camera';  // Set upload method
             handleFile(file);
             closeCameraBtn.click();
         }, 'image/png');
@@ -152,7 +153,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('/api/detect', {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'upload-method': uploadMethod  // Send upload method
+                },
                 body: formData
             });
 

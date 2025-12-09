@@ -8,6 +8,11 @@ import os
 from app.db import engine, Base
 from app.api import auth
 
+# Import all models to register them with SQLAlchemy
+from app.models.user import User
+from app.models.analysis import Analysis
+from app.models.analysis_result import AnalysisResult
+
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
