@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Deepfaker</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="logo">DEEP<span>FAKER</span></div>
+        <nav>
+            <span id="userDisplay" style="margin-right: 1rem; color: var(--text-muted);">Welcome</span>
+            <button id="logoutBtn" class="btn btn-outline">Log Out</button>
+        </nav>
+    </header>
+
+    <main class="container" style="max-width: 1400px;">
+        <div class="main-dashboard" style="max-width: 100%; grid-template-columns: 1fr 400px;">
+            <div class="analysis-section">
+                <!-- Upload Area -->
+                <div class="upload-area glass-panel" id="dropZone"
+                    style="height: 400px; display: flex; flex-direction: column; justify-content: center;">
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                    <div class="upload-content">
+                        <i class="fa-solid fa-cloud-arrow-up"
+                            style="font-size: 4rem; color: var(--primary); margin-bottom: 2rem;"></i>
+                        <h3>Drag & Drop or Click to Upload</h3>
+                        <p style="font-size: 1.1rem; color: var(--text-muted);">Supports high-res JPG, PNG</p>
+                    </div>
+                </div>
+
+                <!-- Input Actions -->
+                <div class="action-bar" style="justify-content: flex-start; margin-top: 2rem;">
+                    <button id="cameraBtn" class="btn btn-outline"><i class="fa-solid fa-camera"></i> Use
+                        Camera</button>
+                    <button id="pasteBtn" class="btn btn-outline"><i class="fa-regular fa-clipboard"></i> Paste
+                        Image</button>
+                    <div style="flex:1"></div>
+                    <button id="checkBtn" class="btn btn-primary" style="font-size: 1.2rem; min-width: 250px;" disabled>
+                        <i class="fa-solid fa-magnifying-glass-chart"></i> Analyze Image
+                    </button>
+                </div>
+
+                <!-- Preview & Scan (Overlay) -->
+                <div class="preview-container glass-panel" id="previewContainer"
+                    style="height: 500px; margin-top: 2rem;">
+                    <img id="imagePreview" src="" alt="Preview">
+                    <div class="scan-line" id="scanLine"></div>
+                </div>
+            </div>
+
+            <!-- Sidebar Results -->
+            <div class="sidebar">
+                <div class="results-panel glass-panel" id="resultsPanel"
+                    style="display: none; height: 100%; overflow-y: auto;">
+                    <h3
+                        style="color: var(--text-muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 1px; text-align: center;">
+                        Analysis Report</h3>
+
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <div id="verdict" class="verdict"
+                            style="font-size: 4rem; line-height: 1; margin-bottom: 0.5rem;">--</div>
+                        <div id="mainConfidence" style="font-size: 3.5rem; font-weight: 800; color: var(--text-main);">
+                            --%</div>
+                        <small
+                            style="color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;">Confidence
+                            Score</small>
+                    </div>
+
+                    <div class="explanation-box" id="explanationBox">
+                        Parsing image features...
+                    </div>
+
+                    <div style="margin-top: 2.5rem;">
+                        <h4 style="margin-bottom: 1.5rem; color: var(--text-main);">Confidence Metrics</h4>
+
+                        <div class="metric-item">
+                            <div class="metric-label"><span>AI Probability</span><span id="probAi">0%</span></div>
+                            <div class="metric-track">
+                                <div class="metric-fill" id="barAi"></div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label"><span>Real Probability</span><span id="probReal">0%</span></div>
+                            <div class="metric-track">
+                                <div class="metric-fill" id="barReal" style="width: 0%; background: var(--success);">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2.5rem;">
+                        <h4 style="margin-bottom: 1.5rem; color: var(--text-main);">Feature Breakdown</h4>
+                        <!-- Simulated Metrics for UI -->
+                        <div class="metric-item">
+                            <div class="metric-label"><span>Texture Consistency</span><span id="valTexture">--</span>
+                            </div>
+                            <div class="metric-track">
+                                <div class="metric-fill" id="barTexture" style="width: 0%; background: #0088ff;"></div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label"><span>Lighting Artifacts</span><span id="valLighting">--</span>
+                            </div>
+                            <div class="metric-track">
+                                <div class="metric-fill" id="barLighting" style="width: 0%; background: #aa00ff;"></div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label"><span>Border Anomalies</span><span id="valGeometry">--</span>
+                            </div>
+                            <div class="metric-track">
+                                <div class="metric-fill" id="barGeometry" style="width: 0%; background: #ff0055;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                        <small>Model: <span id="modelSource" style="color: var(--primary);">EfficientNetB0
+                                (Ensemble)</span></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Camera Modal -->
+        <div id="cameraModal"
+            style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:200; align-items:center; justify-content:center;">
+            <div class="glass-panel" style="padding:2rem; width:500px; text-align:center;">
+                <video id="webcam" autoplay playsinline style="width:100%; border-radius:8px;"></video>
+                <div style="margin-top:1rem; display:flex; justify-content:center; gap:1rem;">
+                    <button id="captureBtn" class="btn btn-primary">Capture</button>
+                    <button id="closeCameraBtn" class="btn btn-outline">Close</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+
+</html>

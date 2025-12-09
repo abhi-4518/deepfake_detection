@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+python-multipart
+torch
+torchvision
+ftfy
+regex
+tensorflow
+Pillow
+pandas
+pyyaml
+scikit-learn
+open_clip_torch
+sqlalchemy
+passlib[bcrypt]
+python-jose[cryptography]

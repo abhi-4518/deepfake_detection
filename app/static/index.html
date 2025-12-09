@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deepfaker - Advanced AI Detection</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Deepfaker - Advanced AI Detection</title>
+        <link rel="stylesheet" href="/static/css/style.css">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    </head>
+
+<body>
+    <header>
+        <div class="logo">DEEP<span>FAKER</span></div>
+        <nav id="navMenu">
+            <!-- Dynamic Content -->
+            <a href="/login" class="btn btn-outline">Log In</a>
+            <a href="/signup" class="btn btn-primary">Sign Up</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>Reveal the Truth Behind<br>Every Pixel</h1>
+            <p>Advanced Deepfake Detection powered by <strong>EfficientNetB0</strong> and Ensemble Learning. Detect
+                synthetic media with precision.</p>
+            <div id="heroCta">
+                <a href="/signup" class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">Get Started</a>
+            </div>
+        </section>
+
+        <section class="news-section">
+            <h2 class="section-title">Trending in Deepfake Tech</h2>
+            <div class="news-grid">
+                <article class="news-card">
+                    <span class="news-date">Dec 08, 2024</span>
+                    <h3>New EU AI Regulations</h3>
+                    <p>The European Union passes landmark legislation requiring mandatory labeling of all AI-generated
+                        content...</p>
+                </article>
+                <article class="news-card">
+                    <span class="news-date">Dec 05, 2024</span>
+                    <h3>EfficientNetB0 Breakthrough</h3>
+                    <p>New detection heads based on EfficientNetB0 show 98% accuracy in detecting latest diffusion
+                        models...</p>
+                </article>
+                <article class="news-card">
+                    <span class="news-date">Nov 28, 2024</span>
+                    <h3>The Rise of Audio Deepfakes</h3>
+                    <p>Security experts warn of a surge in voice synthesis scams targeting financial institutions...</p>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const nav = document.getElementById('navMenu');
+            const heroCta = document.getElementById('heroCta');
+
+            if (token) {
+                // Update Nav
+                nav.innerHTML = `
+                    <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+                `;
+
+                // Update Hero Button
+                heroCta.innerHTML = `
+                    <a href="/dashboard" class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">Analyze Images</a>
+                `;
+            }
+        });
+    </script>
+</body>
+
+</html>
