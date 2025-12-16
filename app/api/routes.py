@@ -34,43 +34,48 @@ async def detect(
         # Run detection
         result = await detection_service.detect_image(image)
         
-        # Map upload method string to enum
-        upload_method_enum = UploadMethod.FILE  # Default
-        if upload_method.lower() == "camera":
-            upload_method_enum = UploadMethod.CAMERA
-        elif upload_method.lower() == "clipboard":
-            upload_method_enum = UploadMethod.CLIPBOARD
-        
-        # Save analysis to database
-        analysis = Analysis(
-            user_id=current_user.id,
-            image_data=contents,
-            image_filename=file.filename,
-            upload_method=upload_method_enum
-        )
-        db.add(analysis)
-        db.flush()  # Get the analysis ID
-        
-        # Save analysis result
-        decision = result.get("final_decision", {})
-        analysis_result = AnalysisResult(
-            analysis_id=analysis.id,
-            verdict=decision.get("label", "unknown"),
-            prob_ai=decision.get("prob_ai"),
-            prob_real=decision.get("prob_real"),
-            confidence=decision.get("prob_ai") if decision.get("label") == "ai_generated" else decision.get("prob_real"),
-            source_model=decision.get("source", "unknown"),
-            feature_metrics=None,  # Can be populated later if needed
-            raw_response=result
-        )
-        db.add(analysis_result)
-        db.commit()
-        
-        logger.info(f"Analysis {analysis.id} saved for user {current_user.username}")
+        # Try to save to database (optional - don't fail if this errors)
+        try:
+            # Map upload method string to enum
+            upload_method_enum = UploadMethod.FILE  # Default
+            if upload_method.lower() == "camera":
+                upload_method_enum = UploadMethod.CAMERA
+            elif upload_method.lower() == "clipboard":
+                upload_method_enum = UploadMethod.CLIPBOARD
+            
+            # Save analysis to database
+            analysis = Analysis(
+                user_id=current_user.id,
+                image_data=contents,
+                image_filename=file.filename,
+                upload_method=upload_method_enum
+            )
+            db.add(analysis)
+            db.flush()  # Get the analysis ID
+            
+            # Save analysis result
+            decision = result.get("final_decision", {})
+            analysis_result = AnalysisResult(
+                analysis_id=analysis.id,
+                verdict=decision.get("label", "unknown"),
+                prob_ai=decision.get("prob_ai"),
+                prob_real=decision.get("prob_real"),
+                confidence=decision.get("prob_ai") if decision.get("label") == "ai_generated" else decision.get("prob_real"),
+                source_model=decision.get("source", "unknown"),
+                feature_metrics=None,  # Can be populated later if needed
+                raw_response=result
+            )
+            db.add(analysis_result)
+            db.commit()
+            
+            logger.info(f"Analysis {analysis.id} saved for user {current_user.username}")
+        except Exception as db_error:
+            db.rollback()
+            logger.warning(f"Failed to save analysis to database: {db_error}")
+            # Continue anyway - detection result is still valid
         
         return JSONResponse(content=result)
     except Exception as e:
-        db.rollback()
         logger.error(f"Error processing request: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 

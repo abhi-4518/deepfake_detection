@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modelSource = document.getElementById('modelSource');
 
     let currentFile = null;
+    let uploadMethod = 'file';  // Track upload method: 'file', 'camera', or 'clipboard'
 
     // Load User Info
     fetch('/api/auth/me', {
@@ -59,6 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleFile(file) {
         if (file && file.type.startsWith('image/')) {
             currentFile = file;
+            if (!uploadMethod || uploadMethod === 'clipboard') {
+                uploadMethod = 'file';  // Default to file if not already set by camera/clipboard
+            }
             const reader = new FileReader();
             reader.onload = (e) => {
                 imagePreview.src = e.target.result;
@@ -95,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (item.types && item.types.some(type => type.startsWith('image/'))) {
                     const blob = await item.getType('image/png') || await item.getType('image/jpeg');
                     const file = new File([blob], "pasted_image.png", { type: blob.type });
+                    uploadMethod = 'clipboard';  // Set upload method
                     handleFile(file);
                     return;
                 }
